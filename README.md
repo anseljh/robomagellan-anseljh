@@ -22,8 +22,8 @@ This repo has notes, code, and other stuff related to my work toward competing i
 - **Compute**:
   - Something powerful enough to process images from the camera and identify orange cones. I have a Raspberry Pi Model 3 A+ which I'll try out. It may be underpowered (only 512 GB RAM).
   - Planning to base the rest around an RP2040 board, probably one of my Raspberry Pi Picos. Could I just use the more powerful Raspberry Pi computer? Probably, but, among other considerations, I think it's more funny to make the computer be a peripheral for the microcontroller.
-- **Dead man's switch**: The Robo-Magellan rules require the operator be able to stop a robot immediately by letting go of a switch. I have a few ideas about this, but nothing definitive. I might use the [RFM69HCW packet radios](https://www.sparkfun.com/products/12775) that I've used before and have a remote send a heartbeat to the robot while a button is pressed, and if that signal doesn't come, a relay cuts off power to the motors. I want to research how other people are doing this and maybe not reinvent the wheel. There's a Sparkfun tutorial called [How to Build a Remote Kill Switch](https://learn.sparkfun.com/tutorials/how-to-build-a-remote-kill-switch?_ga=2.46260131.509716641.1684019844-1892652832.1674461773).
-- **Logging**: I'll want to log data for later analysis. I got an SD card breakout board for this that I haven't tried out yet.
+- **Dead man's switch**: The Robo-Magellan rules require the operator be able to stop a robot immediately by letting go of a switch. I have a few ideas about this, but nothing definitive. I might use the [RFM69HCW packet radios](https://www.sparkfun.com/products/12775) that I've used before and have a remote send a heartbeat to the robot while a button is pressed, and if that signal doesn't come, a relay cuts off power to the motors. I want to research how other people are doing this and maybe not reinvent the wheel. There's a Sparkfun tutorial called [How to Build a Remote Kill Switch](https://learn.sparkfun.com/tutorials/how-to-build-a-remote-kill-switch?_ga=2.46260131.509716641.1684019844-1892652832.1674461773) that is very similar to my concept.
+- **Logging**: I'll want to log data for later analysis. I got an SD card breakout board for this that I haven't tried out yet. On the other hand, I might want to use that for quickly delivering GPS coordinates to the bot. Might need to get a second one in that case.
 
 ## Intermediate Milestones
 
@@ -110,6 +110,7 @@ Should there be a realtime clock? Might not need one because we can [get time fr
 - [x] GPS module: [HiLetgo GY-NEO6MV2](https://www.amazon.com/gp/product/B01D1D0F5M) - $9
 - [x] Magnetometer (compass): [Sparkfun Micromag 3-axis magnetometer](https://www.sparkfun.com/products/retired/244) - $15.49 on eBay
 - [x] [Micro SD card breakout board](https://www.adafruit.com/product/4682) for logging - $3.50
+- [ ] Second [Micro SD card breakout board](https://www.adafruit.com/product/4682) for GPS coordinates - $3.50
 - [ ] Bump switch for cone touch detection
 - [x] 2x connectors for data from optical encoders (TE Connectivity part no. [3-640442-5](https://www.te.com/usa-en/product-3-640442-5.html?te_bu=Cor&te_type=email&te_campaign=oth_usa_cor-oth-usa-email-ecomm-fy19-hbrs-oconf-prdlink_sma-716_2&elqCampaignId=37418)) - $1.08
 - [x] [MCP23008](https://www.adafruit.com/product/593) I2C GPIO expander - $1.95
@@ -122,10 +123,10 @@ Should there be a realtime clock? Might not need one because we can [get time fr
 
 ### Power Systems
 
-- [ ] 12V SLA battery, like this [Mighty Max 12V 7 Ah SLA battery](https://www.homedepot.com/p/MIGHTY-MAX-BATTERY-12-Volt-7-Ah-Sealed-Lead-Acid-SLA-Rechargeable-Battery-ML7-12/307979135). It weighs 4.5 pounds. - $20
+- [x] 12V SLA battery, like this [Mighty Max 12V 7 Ah SLA battery](https://www.homedepot.com/p/MIGHTY-MAX-BATTERY-12-Volt-7-Ah-Sealed-Lead-Acid-SLA-Rechargeable-Battery-ML7-12/307979135). It weighs 4.5 pounds. - $20
 - [x] [Pololu 4.5-20V Fine-Adjust Step-Up Voltage Regulator U3V70A](https://www.pololu.com/product/2890): I'll use one of these to step up the 12V from the SLA battery to 18V to the motors. ([Bought from RobotShop](https://www.robotshop.com/products/pololu-45-20v-fine-adjust-step-up-voltage-regulator-u3v70a?variant=42360645288097)) - $40.95
-- [ ] Fuse holder
-- [ ] Fuse (5A?)
+- [x] Mini fuse holder: [Littelfuse FHM2BP](https://www.oreillyauto.com/detail/c/blister-pack/littelfuse-blister-pack-fuse-holder/lit3/fhm2bp?q=fhm2bp&pos=0) - $4.99
+- [x] 5A mini fuse: [Littelfuse 5 Amp Fuse MIN5BP](https://www.oreillyauto.com/detail/c/blister-pack/littelfuse-blister-pack-5-amp-fuse/lit3/min5bp?q=min5bp&pos=0) - $5.29 for 5
 - [ ] Big red button for emergency stop
 - [ ] Toggle switch for control board power
 - [ ] Toggle switch for manual motor power enable/cutoff
@@ -169,6 +170,7 @@ For the safety stop mechanism, I'm envisioning a small handheld device that will
 - SPI (4) + 1 = **5** for radio
 - SPI (3 reused + 1 CS) + 2 = **3** for magnetometer
 - SPI (reuse 3 + 1 CS) + 1 = **2** for [Adafruit Micro SD SPI or SDIO Card Breakout](https://www.adafruit.com/product/4682)
+- SPI (reuse 3 + 1 CS) + 1 = **2** for second SD card breakout
 - 2x2 = **4** for optical encoders
 - 1 for mode selection switch
 - 1 for mode selection LED
@@ -177,7 +179,7 @@ For the safety stop mechanism, I'm envisioning a small handheld device that will
 - 1 for motor power relay
 - 4 for motor driver
 
-Total: **27**
+Total: **29**
 
 Uh-oh; there are only 26 usable GPIO pins on the Pico. We'll have to offload some of this to an IO expander. I have both an [MCP23008](https://www.adafruit.com/product/593) and an [MCP23017](https://www.adafruit.com/product/732) for that (I2C to 8 or 16 GPIO, respectively).
 
