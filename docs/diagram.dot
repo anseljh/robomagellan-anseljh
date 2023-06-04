@@ -1,0 +1,87 @@
+digraph G {
+
+    subgraph clusterSafeG {
+        label="Safety Mechanism";
+        batt3VSafe -> picoSafe;
+        batt3VSafe -> rfSafe;
+        rfSafe -> picoSafe;
+    }
+
+    subgraph clusterDriveG {
+        label="Drive";
+        batt12V -> fuse -> relay -> stepup -> driver;
+        driver -> motorA;
+        driver -> motorB;
+    }
+
+    subgraph clusterRemoteG {
+        label="Remote";
+        batt3VRemote -> swRemotePower -> picoRemote;
+        swRemotePower -> rfRemote;
+        swModeRemote -> picoRemote;
+        btnEnable -> picoRemote;
+        picoRemote -> rfRemote;
+        nunchuck -> nunchuckAdapter -> picoRemote [label="I2C"];
+    }
+
+    subgraph clusterMainBotG {
+        label="Main Robot";
+        batt3VBot -> swBotPower -> jct3V;
+        batt5VEncoders -> swBotPower -> jct5V;
+        jct3V -> picoBot;
+        jct3V -> GPS;
+        jct5V -> encoderA;
+        jct5V -> encoderB;
+        swModeBot -> picoBot;
+        picoBot -> logger [label="SPI"];
+        accelerometer -> picoBot;
+        magnetometer -> picoBot;
+        ultrasonics -> picoBot;
+        encoderA -> picoBot;
+        encoderB -> picoBot;
+    }
+
+    subgraph clusterVisionG {
+        label="Vision";
+        camera -> visionRPi;
+        battVision -> visionRPi;
+    }
+
+    // Inter-cluster edges
+    picoSafe -> relay;
+    picoBot -> driver;
+    motorA -> encoderA [style=dotted];
+    motorB -> encoderB [style=dotted];
+    rfRemote -> rfSafe [style=dashed,label="RF"];
+    picoSafe -> picoBot [label="UART"];
+    visionRPi -> picoBot [label="UART"];
+    
+    // Node shapes
+    batt12V, batt5VEncoders, batt3VBot, batt3VSafe, batt3VRemote, battVision [shape=rect,fillcolor=red];
+    picoBot, picoSafe, picoRemote, visionRPi [shape=rect, color=green, fillcolor=green];
+
+    // Node labels
+    fuse [label="Fuse"];
+    rfRemote, rfSafe [label="RFM69"];
+    swRemotePower [label="Power switch\n(DPST)"];
+    swBotPower [label="Power switch\nDPST"];
+    btnEnable [label="Enabling switch"];
+    nunchuck [label="Wii Nunchuck"];
+    nunchuckAdapter [label="Nunchuck Adapter"];
+    batt12V [label="12V SLA battery"];
+    batt5VEncoders, battVision [label="5V battery\n(USB pack)"];
+    batt3VBot, batt3VSafe, batt3VRemote [label="3V battery\n(2xAA)"];
+    logger [label="SD card breakout board"];
+    swModeBot, swModeRemote [label="Mode switch"];
+    ultrasonics [label="Ultrasonic\nrangefinder array"];
+
+    // Connection labels
+    GPS -> picoBot [label="UART"];
+
+    // MCU & CPU labels
+    picoBot [label="Robot MCU\nRPi Pico W"];
+    picoSafe [label="Safety MCU\nRPi Pico"];
+    picoRemote [label="Remote MCU\nRPi Pico"];
+    visionRPi [label="Vision CPU\nRPi 3/4"];
+
+}

@@ -33,7 +33,7 @@ This repo has notes, code, and other stuff related to my work toward competing i
 1. **Test remote motor power cut-off.** Need to verify this works before getting too far along with everything else.
 1. **Figure out how to mount wheels to the big DC motors.** I'm even more of a rookie when it comes to mechanical engineering. Lots to learn here.
 1. **Build a chassis.** Figure out how big & what kind of chassis to build. Build it.
-1. **Do a working [FloorBot](https://www.hbrobotics.org/index.php/challenges/).** This is another good intermediate goal. I can use the same chassis, motors, remote, etc., but not have to worry about GPS, terrain, and orange cones yet.
+1. **Do a working [FloorBot](https://www.hbrobotics.org/index.php/challenges/).** This is another good intermediate goal. I can use the same chassis, motors, remote, etc., but not have to worry about GPS, terrain, and recognizing orange cones yet.
 
 ## Parts Selection
 
@@ -197,3 +197,13 @@ Total: **2**
 - 3 for indicator LEDs
 
 Total: **11**
+
+## Block Diagram
+
+![Diagram of systems and components](docs/diagram.png)
+
+Rendered with [GraphViz](https://graphviz.org/) from `docs/diagram.dot` with:
+
+```shell
+dot -Tpng docs/diagram.dot > docs/diagram.png
+```
