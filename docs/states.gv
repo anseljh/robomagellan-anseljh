@@ -1,0 +1,19 @@
+digraph finite_state_machine {
+    rankdir=LR;
+
+    node [shape = doublecircle, label="initializing\nRead map config,\nsetup hardware"]; Sinitializing;
+    node [shape = point ]; qi
+
+    node [shape = circle];
+
+    node [label="idle\nAwait start conditions"]; Sidle;
+    node [label="manual\nDrive manually via remote"]; Smanual;
+    node [label="plan\nPlan route"]; Splan;
+
+    qi -> Sinitializing;
+    Sinitializing -> Sidle;
+    Sidle -> Smanual [label="Mode=manual"];
+    Sidle -> Splan [label="Mode=autonomous"];
+
+
+}
