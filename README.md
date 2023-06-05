@@ -59,7 +59,7 @@ I haven't thought about the chassis much yet. It needs to be able to hold these 
 
 The little motor drivers I've used before won't cut it for driving multiple 18V 2A motors, so I needed to get a beefier driver. I settled on the [Cytron 10A 5-30V Dual Channel DC Motor Driver](https://www.robotshop.com/products/cytron-10a-5-30v-dual-channel-dc-motor-driver?variant=42358540009633). I considered the very cool [RoboClaw](https://www.basicmicro.com/motor-controller) as shown in [Camp Peavy's book *HomeBrewed Robots!*](https://www.amazon.com/HomeBrewed-Robots-Camp-Peavy/dp/B0BW283Q27), but it's expensive and a bit more complex than I need. (I think.)
 
-### Wheels, etc.
+### Wheels, et cetera
 
 I need to figure out how to mount wheels to the motor shafts, which are 1/4" diameter. I don't know much about this part. It seems to be hard to find wheel hubs for 1/4" diameter shafts, but there's probably stuff I'm missing.
 
