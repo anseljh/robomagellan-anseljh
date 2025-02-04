@@ -1,0 +1,64 @@
+// See: https://sfriederichs.github.io/how-to/graphviz/2017/12/07/State-Diagrams.html
+
+digraph state_machine {
+
+// entry and exit nodes
+// node [shape=circle,fillcolor=black,fontcolor=white,label="ENTRY"]ENTRY;
+// node [shape=circle,fillcolor=black,fontcolor=white,label="EXIT"]EXIT;
+// node [shape=circle,label="EXIT"]EXIT;
+node [shape=circle,style=filled,fillcolor=black,fontcolor=white]
+ENTRY[label="ENTRY"];
+EXIT[label="EXIT"];
+
+node [shape=circle,fillcolor=white,fontcolor=black];
+
+// Setup states
+
+Init[label="Initializing"];
+AwaitingMap[label="Awaiting Map Input"];
+LoadingMap[label="Loading Map Data"];
+PlottingInitialRoute[label="Plotting Initial Route"];
+ReadyForAutonomous[label="Idle\nReady for Autonomous"];
+// Autonomous[label="Begin Autonomous Driving"];
+
+// Driving states
+ReadSensors[label="Read Sensors"];
+PlanRoute[label="Plan Route"];
+RoughDriveToGoal[label="Drive toward rough goal"];
+ReadCamera[label="Snap photo from camera"]
+RunConeModel[label="Run cone-detection model"]
+TurnToCone[label="Turn toward cone"];
+ApproachCone[label="Approach cone"];
+TurnToSeekCone[label="Turn to seek cone"];
+SkipGoal[label="Skip goal"];
+
+// Setup transitions
+
+ENTRY -> Init;
+Init -> AwaitingMap;
+AwaitingMap -> LoadingMap [label="Map chip slotted"];
+LoadingMap -> PlottingInitialRoute;
+PlottingInitialRoute -> ReadyForAutonomous;
+ReadyForAutonomous -> ReadSensors [label="DMS pressed"];
+
+// Driving transitions
+
+ReadSensors -> PlanRoute;
+PlanRoute -> RoughDriveToGoal [label="Distant from rough goal"];
+RoughDriveToGoal -> ReadSensors;
+
+PlanRoute -> ReadCamera [label="Close to rough goal"];
+ReadCamera -> RunConeModel;
+RunConeModel -> TurnToCone [label="Cone detected to side"];
+TurnToCone -> ReadCamera;
+RunConeModel -> ApproachCone [label="Cone detected ahead"];
+RunConeModel -> TurnToSeekCone [label="Cone not detected"];
+TurnToSeekCone -> ReadCamera;
+RunConeModel -> SkipGoal [label="No cone detected after 360-degree scan"];
+SkipGoal -> PlanRoute;
+ApproachCone -> ReadCamera [label="Cone not reached"];
+ApproachCone -> PlanRoute [label="Cone reached"];
+
+PlanRoute -> EXIT [label="Last goal completed"];
+
+}
