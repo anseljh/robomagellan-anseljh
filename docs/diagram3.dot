@@ -1,0 +1,175 @@
+// dot -Tpng docs/diagram3.dot > docs/diagram3.png
+
+graph G {
+
+    subgraph clusterPowerSupply {
+        label="Power Supply";
+        // batt12V [color=red];
+        batt12V -- fuse -- masterSwitch -- distroBar12V [color=red];
+        distroBar12V;
+        distroBar5V;
+        distroBar3V;
+        distroBar12V -- PCinput [color=red];
+        // distroBar12V -- buck5V [color=red];
+        buck5V -- PCoutput5V -- distroBar5V [color=cyan];
+        // distroBar12V -- buck3V [color=red];
+        buck3V -- PCoutput3V -- distroBar3V [color=orange];
+    }
+
+    subgraph clusterPowerConversion {
+        PCinput [label="Power conversion input\n12V from distro bar", shape=rect, color=red];
+        PCoutput3V [label="3.3V out", color=orange];
+        PCoutput5V [label="5V out", color=cyan];
+        buck5V [color=cyan];
+        buck3V [color=orange];
+        PCinput -- buck5V [color=red];
+        PCinput -- buck3V [color=red];
+    }
+
+    subgraph clusterDriveBoard {
+        label="Drive Board";
+        motorDriver;
+        stepUpTo18V;
+        relayDrive -- stepUpTo18V [label="NO contact to VIN", color=red];
+    }
+
+    subgraph clusterSafety {
+        label="Safety Mechanism";
+        rfSafe -- picoSafe [label="SPI", color=orange];
+        relayAutonomousStrobe;
+        eStopSwitch -- emergencyStrobe [label="NO contact", color=red];
+        picoSafe -- relayAutonomousStrobe [label="GPIO x1 to IN", color=orange];
+        relayAutonomousStrobe -- autonomousStrobe [color=red];
+    }
+
+    subgraph clusterRemote {
+        label="Remote";
+        battRemote3V [label="3V battery pack\n2xAA", color=orange, shape=rect];        
+        battRemote3V -- rfRemote [color=orange];
+        battRemote3V -- picoRemote [color=orange];
+        picoRemote -- rfRemote [label="SPI", color=orange];
+        nunchuckAdapter [label="Nunchuck adapter"];
+        picoRemote -- nunchuckAdapter [label="I2C via Qwiic cable", color=orange];
+        picoRemote -- remoteBtnEnable [label="GPIO x1", color=orange];
+        picoRemote -- remoteSwitchMode [label="GPIO x1", color=orange];
+    }
+
+    // subgraph clusterMotors {
+    //     label="Motors";
+        motorR;
+        motorL;
+        motorR -- encoderR [style=dotted];
+        motorL -- encoderL [style=dotted];
+    // }
+
+    subgraph clusterVisionSensoriumBoard {
+        label="Vision/Sensorium Board";
+        battPi4 -- visionRPi [label="USB-C", color=cyan];
+        camera -- visionRPi [label="FPC"];
+        GPS -- visionRPi [label="UART", color=orange];
+        lidar -- lidarController;
+        lidarController -- visionRPi [label="USB", color=cyan];
+    }
+
+    nunchuckAdapter -- nunchuck [label="I2C", color=orange];
+    nunchuck [label="Wii Nunchuck"];
+
+    distroBar12V -- eStopSwitch [color=red];
+    distroBar12V -- relayAutonomousStrobe [label="to COM", color=red];
+
+    distroBar3V -- GPS;
+
+    subgraph motorSupportBoard {
+        label="Motor Support Board";
+        
+        // Encoder data out
+        LLC -- motorSupportEncoderDataConnector [color=orange];
+    }
+
+
+        // Power to LLC
+        motorSupportEncoderPowerConnector -- LLC [color=orange];
+        motorSupportEncoderPowerConnector -- LLC [color=cyan];
+
+    // supply 5V to encoders
+    distroBar3V -- motorSupportEncoderPowerConnector [color=orange];
+    distroBar5V -- motorSupportEncoderPowerConnector [color=cyan];
+    encoderR -- motorSupportEncoderPowerConnector [color=cyan];
+    encoderL -- motorSupportEncoderPowerConnector [color=cyan];
+
+
+    // }
+
+    motorSupportEncoderDataConnector -- picoBot [label="GPIO x4", color=orange, penwidth=2];
+
+    stepUpTo18V -- motorDriver [color=magenta];
+    motorDriver -- motorR [color=magenta];
+    motorDriver -- motorL [color=magenta];
+
+    distroBar3V -- rfSafe [color=orange];
+    distroBar3V -- picoSafe [color=orange];
+    distroBar3V -- picoBot [color=orange];
+    distroBar3V -- ultrasonicSensor [color=orange];
+
+    picoSafe -- picoBot [label="UART", color=orange];
+    picoSafe -- relayDrive [label="GPIO x1 to IN", color=orange];
+
+    picoBot -- visionRPi [label="UART", color=orange];
+    picoBot -- motorDriver [label="GPIO x4", color=orange];
+
+    subgraph clusterBrainBoard {
+        label="Main Brain Board";
+        picoBot -- accelerometer [label="I2C", color=orange];
+        picoBot -- magnetometer [label="TBD"];
+        picoBot -- ultrasonicSensor [label="GPIO x2", color=orange];
+    }
+    eStopSwitch -- relayDrive [label="NC contact to COM", color=red];
+
+    remoteBtnEnable [label="Enabling switch (pushbutton)"];
+    remoteSwitchMode [label="Mode switch"];
+
+    rfRemote -- rfSafe [label="RF"; style=dashed];
+
+    distroBar3V -- bumper [color=orange];
+    bumper -- picoBot [label="GPIO x1", color=orange];
+
+    // Node labels
+    fuse [label="Fuse"];
+    masterSwitch [label="Master on/off switch"];
+    rfRemote, rfSafe [label="RFM69"];
+    batt12V [label="12V SLA battery", shape=rect, color=red];
+    battPi4 [label="USB battery pack", shape=rect, color=cyan];
+    distroBar12V [label="12V power distribution bar"];
+    distroBar5V [label="5V power distribution bar"];
+    distroBar3V [label="3.3V power distribution bar"];
+    buck3V [label="Buck converter\nMPM3610 12V to 3.3V"];
+    buck5V [label="Buck converter\nMPM3610 12V to 5V"];
+    relayDrive [label="Relay\nTeyleten 3V relay breakout board"];
+    stepUpTo18V [label="Step-Up Voltage Regulator\nPololu 4.5-20V U3V70A"];
+    motorDriver [label="Motor driver\nCytron 10A 5-30V Dual Channel DC Motor Driver"];
+    motorR, motorL [label="18V DC motor"];
+    encoderR, encoderL [label="Encoder"];
+    picoBot [label="Robot MCU\nRPi Pico W"];
+    picoSafe [label="Safety MCU\nRPi Pico"];
+    picoRemote [label="Remote MCU\nRPi Pico"];
+    visionRPi [label="Vision CPU\nRPi 4"];
+    eStopSwitch [label="E-Stop switch"];
+    relayAutonomousStrobe [label="Relay\nTeyleten 3V relay breakout board"];
+    autonomousStrobe [label="Yellow autonomous-mode strobe"];
+    emergencyStrobe [label="Red emergency strobe"];
+
+    // Sensors
+    accelerometer [label="Accelerometer\nLIS3DH"];
+    magnetometer [label="Magnetometer\nTBD"];
+    ultrasonicSensor [label="Ultrasonic rangefinder\nRCWL-1601"];
+    GPS [label="GPS\nNEO-6M"];
+    lidar [label="Lidar\nNeato XV"];
+    lidarController [label="getSurreal Lidar controller 2.0"];
+    bumper [label="Bump microswitch"];
+
+    // Motor support board components
+    LLC [label="Logic Level Converter\n5V to 3.3V"];
+    motorSupportEncoderDataConnector [label="Encoder data connector"];
+    motorSupportEncoderPowerConnector [label="3.3V and 5V power connectors"];
+
+}

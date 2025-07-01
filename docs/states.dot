@@ -1,11 +1,8 @@
-// See: https://sfriederichs.github.io/how-to/graphviz/2017/12/07/State-Diagrams.html
+// https://sfriederichs.github.io/how-to/graphviz/2017/12/07/State-Diagrams.html
+// https://graphviz.org/Gallery/directed/cluster.html
 
 digraph state_machine {
 
-// entry and exit nodes
-// node [shape=circle,fillcolor=black,fontcolor=white,label="ENTRY"]ENTRY;
-// node [shape=circle,fillcolor=black,fontcolor=white,label="EXIT"]EXIT;
-// node [shape=circle,label="EXIT"]EXIT;
 node [shape=circle,style=filled,fillcolor=black,fontcolor=white]
 ENTRY[label="ENTRY"];
 EXIT[label="EXIT"];
