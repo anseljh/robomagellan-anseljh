@@ -1,0 +1,19 @@
+name = "HBRC Robo-Magellan April 26, 2025"
+
+[[cones]]
+type = "start"
+coordinates = [
+    [37, 23, 10], # 37 deg 23'10" N
+    [122, 0, 14], # 122 deg 0'14" W
+]
+
+[[cones]]
+type = "bonus"
+coordinates = [
+    [37, 23, 10], # 37 deg 23'10" N
+    [122, 0, 13], # 122 deg 0'13" W
+]
+
+[[cones]]
+type = "end"
+coordinates = []
