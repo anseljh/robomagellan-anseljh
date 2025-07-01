@@ -4,3 +4,7 @@
 # - "safety" for the Safety Mechanism MCU
 # See block diagram in Obsidian: obsidian://open?vault=Supervault&file=Robotics%2F3.%20Robo-Magellan%2FRobo-Magellan%20Bot
 board_id = "main"
+
+[wifi]
+ssid = ""
+password = ""

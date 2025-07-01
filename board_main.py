@@ -1,14 +1,16 @@
 """
 CircuitPython code for the main robot MCU.
+Board: Raspberry Pi Pico W
 
 Devices:
-- Serial to main board (hardware UART)
-- Serial to RPi 4 (PIO UART)
+- Serial to safety board (hardware UART)
+- Serial to vision RPi 4 (hardware UART)
 - Serial to GPS module (PIO UART)
-- Serial to Neato lidar (PIO UART)
+- (maybe) Serial to Neato lidar (PIO UART)
 - Motor controller (4 GPIO pins)
+- Mode selector switch (1 GPIO)
+- Wifi network selector DIP switch (1 GPIO)
 - Some status LEDs TBD (1 GPIO each)
-- Mode selector switch (1 GPIO pin)
 
 Pinout diagram: https://picow.pinout.xyz/
 """
@@ -17,6 +19,7 @@ import time
 import board
 import pwmio
 import digitalio
+import busio
 
 from utils import init_hw_uart, init_pio_uart
 from robot import RoboMagellanBot
@@ -34,6 +37,8 @@ M1_PWM_PIN = None
 M1_DIR_PIN = None
 M2_PWM_PIN = None
 M2_DIR_PIN = None
+QWIIC_SCL = None
+QWIIC_SDA = None
 
 class Motor:
     FORWARD = 1
@@ -129,13 +134,16 @@ class MainBoard:
         
         # UART for Neato lidar
         # self.uart_lidar = None # TODO: setup a PIO UART for the Neato lidar
-        self.uart_lidar = init_pio_uart(LIDAR_TX_PIN, LIDAR_RX_PIN)
+        # self.uart_lidar = init_pio_uart(LIDAR_TX_PIN, LIDAR_RX_PIN)
 
         # Initialize drivetrain
         self.drivetrain = Drivetrain()
 
         # Init mode selector switch
         # TODO
+
+        # Init I2C bus for Qwiic devices
+        i2c1 = busio.I2C(QWIIC_SCL, QWIIC_SDA)
 
         self.bot = RoboMagellanBot()
 

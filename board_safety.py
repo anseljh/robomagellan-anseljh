@@ -1,12 +1,14 @@
 """
 CircuitPython code for the safety mechanism MCU.
+Board: Raspberry Pi Pico 1
 
 Devices:
 - RFM69 radio (SPI)
-- Relay (1 GPIO)
+- Motor-enable relay (1 GPIO)
+- Cytron motor driver (4 GPIO)
 - Serial to main board (UART)
+- Autonomous-mode strobe via relay (1 GPIO)
 - Some status LEDs TBD (1 GPIO each)
-- Maybe a strobe light, TBD (1 GPIO)
 
 Pinout diagram: https://pico.pinout.xyz/
 """
