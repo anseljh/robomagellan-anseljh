@@ -16,10 +16,10 @@ Sparkfun: How to Build a Remote Kill Switch
 
 import time
 import board
-import digitalio
 import busio
+from digitalio import DigitalInOut, Direction, Pull
 
-from wiichuck.nunchuk import Nunchuk
+from adafruit_nunchuk import Nunchuk
 
 from utils import init_radio
 
@@ -31,10 +31,31 @@ PIN_CS = board.GP5
 PIN_RESET = board.GP20
 QWIIC_SCL = board.GP23
 QWIIC_SDA = board.GP22
+SWITCH_DEAD_MAN = board.A0  # A0 for enabling/dead-man's switch
+SWITCH_MODE = board.A1  # A1 for autonomous/manual mode switch
+# nothing on A2 yet
+LED_MODE = board.A3  # A3 for autonomous/manual mode LED
 
 
 class RemoteBoard:
     def __init__(self):
+        # Init mode LED
+        self.led_mode = DigitalInOut(LED_MODE)
+        self.led_mode.direction = Direction.OUTPUT
+        print("Mode LED initialized.")
+
+        # Init mode switch
+        self.switch_mode = DigitalInOut(SWITCH_MODE)
+        self.switch_mode.direction = Direction.INPUT
+        # self.switch_mode.pull = None  # Pull.UP  # Pull-up resistor for switch
+        print("Mode switch initialized.")
+
+        # Init dead-man's switch
+        self.switch_enabling = DigitalInOut(SWITCH_DEAD_MAN)
+        self.switch_enabling.direction = Direction.INPUT
+        # self.switch_enabling.pull = Pull.UP
+        print("Dead-man's switch initialized.")
+
         # Init RFM69 radio
         self.radio = init_radio(
             mosi_pin=PIN_MOSI,
@@ -42,8 +63,9 @@ class RemoteBoard:
             clock_pin=PIN_SCK,
             cs_pin=PIN_CS,
             reset_pin=PIN_RESET,
+            freq_mhz=915.0,
         )
-        print("RFM69 radio initialized!")
+        print("RFM69 radio initialized.")
         print(self.radio)
         print(f"Temperature: {self.radio.temperature}C")
         print(f"Frequency: {self.radio.frequency_mhz} MHz")
@@ -52,12 +74,43 @@ class RemoteBoard:
 
         # Instantiate Nunchuck
         i2c1 = busio.I2C(QWIIC_SCL, QWIIC_SDA)
-        self.nunchuck = Nunchuk(i2c1)
-        print("Nunchuk initialized!")
-        print(self.nunchuck)
+        try:
+            self.nunchuck = Nunchuk(i2c1)
+            print("Nunchuk initialized.")
+            print(self.nunchuck)
+        except ValueError as e:
+            print(f"Failed to initialize Nunchuk: {e}")
+            self.nunchuck = None
+        
+        print("** Remote board initialized **")
 
-        # Init enabling switch
-        # TODO
+    def main_loop(self):
+        print("Remote main loop beginning...")
+        while True:
+            if self.switch_mode.value:
+                print("Mode switch is HIGH")
+                self.led_mode.value = True
+                print("Autonomous mode active.")
+            else:
+                print("Mode switch is LOW")
+                self.led_mode.value = False
+                print("Manual mode active.")
 
-    def main_loop():
-        pass
+            print(f"Enabling switch: {self.switch_enabling.value}")
+
+            # Read the Nunchuk state
+            if self.nunchuck:
+                print(f"Nunchuk state: stick {self.nunchuck.joystick} / buttons {self.nunchuck.buttons} / accel {self.nunchuck.acceleration}")
+
+            time.sleep(0.5)
+
+
+if __name__ == "__main__":
+    board = RemoteBoard()
+    for _ in range(3):
+        board.led_mode.value = True
+        time.sleep(0.5)
+        print("Blinking")
+        board.led_mode.value = False
+        time.sleep(0.5)
+    board.main_loop()
