@@ -63,7 +63,6 @@ class RemoteBoard:
             clock_pin=PIN_SCK,
             cs_pin=PIN_CS,
             reset_pin=PIN_RESET,
-            freq_mhz=915.0,
         )
         print("RFM69 radio initialized.")
         print(self.radio)

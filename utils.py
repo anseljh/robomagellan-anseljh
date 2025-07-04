@@ -21,7 +21,7 @@ def init_pio_uart(rx_pin, tx_pin):
 
 
 # Initialize RFM69 radio
-def init_radio(mosi_pin, miso_pin, clock_pin, cs_pin, reset_pin, freq_mhz):
+def init_radio(mosi_pin, miso_pin, clock_pin, cs_pin, reset_pin, freq_mhz=RADIO_FREQ_MHZ):
     """
     Initialize the RFM69 radio module.
     CircuitPython library: https://docs.circuitpython.org/projects/rfm69/en/latest/index.html
