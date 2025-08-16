@@ -207,3 +207,7 @@ Rendered with [GraphViz](https://graphviz.org/) from `docs/diagram.dot` with:
 ```shell
 dot -Tpng docs/diagram.dot > docs/diagram.png
 ```
+
+## Software used
+
+- [LibreCAD](https://librecad.org/) for 2D CAD drawings, mainly for drilling templates for the chassis
