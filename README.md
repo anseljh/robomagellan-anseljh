@@ -202,7 +202,7 @@ Total: **11**
 
 ![Diagram of systems and components](docs/diagram.png)
 
-Rendered with [GraphViz](https://graphviz.org/) from `docs/diagram.dot` with:
+Rendered with [Graphviz](https://graphviz.org/) from `docs/diagram.dot` with:
 
 ```shell
 dot -Tpng docs/diagram.dot > docs/diagram.png
@@ -210,4 +210,5 @@ dot -Tpng docs/diagram.dot > docs/diagram.png
 
 ## Software used
 
+- [Graphviz](https://graphviz.org/) for block and state diagrams
 - [LibreCAD](https://librecad.org/) for 2D CAD drawings, mainly for drilling templates for the chassis
