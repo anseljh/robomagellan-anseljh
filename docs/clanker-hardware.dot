@@ -1,0 +1,170 @@
+// dot -Tpng docs/clanker-hardware.dot > docs/clanker-hardware.png
+
+graph G {
+    
+    subgraph clusterPowerSupply {
+        label="Power Supply";
+        batt12V -- fuse -- masterSwitch -- distroBar12V [color=red];
+        distroBar12V;
+        distroBar5V;
+        distroBar3V;
+
+        subgraph clusterPowerConversion {
+            label="Power Conversion";
+            buck5V; // [color=cyan];
+            buck3V; // [color=orange];
+        }
+
+        buck5V -- distroBar5V [color=cyan];
+        buck3V -- distroBar3V [color=orange];
+    }
+
+    distroBar12V -- buck5V [color=red];
+    distroBar12V -- buck3V [color=red];
+
+    subgraph clusterDriveBoard {
+        label="Drive Board";
+        relayDrive;
+        stepUpTo18V;
+        motorDriver;
+        // relayDrive -- stepUpTo18V [label="NO contact to VIN", color=red];
+    }
+
+    subgraph clusterEStop {
+        label="E-Stop Switch";
+        // eStopSwitch;
+        // eStopNC;
+        // eStopNO;
+
+        eStopSwitch -- eStopNC;
+        eStopSwitch -- eStopNO;
+    }
+    
+    distroBar12V -- eStopNO -- emergencyStrobe [color=red];
+    distroBar12V -- eStopNC -- relayDrive -- stepUpTo18V [color=red];
+    stepUpTo18V -- motorDriver [color=green];
+    motorDriver -- motorL [color=green];
+    motorDriver -- motorR [color=green];
+
+    subgraph clusterRemote {
+        label="Remote and DMS";
+        battRemote -- remoteSwitcPower -- MCURemote; // [color=blue];
+        MCURemote -- rfRemote [color=orange]; // power
+        MCURemote -- rfRemote [label="SPI", color=orange]; // data
+        MCURemote -- nunchuckAdapter [label="I2C via Qwiic cable", color=orange];
+        MCURemote -- remoteBtnEnable [label="GPIO x1", color=orange];
+        MCURemote -- remoteSwitchMode [label="GPIO x1", color=orange];
+    }
+
+    subgraph clusterSafety {
+        label="Safety Mechanism";
+        rfSafe -- MCUSafe [label="SPI", color=orange];
+        // relayAutonomousStrobe;
+        MCUSafe -- relayAutonomousStrobe [label="GPIO x1 to IN", color=orange]; // data
+    }
+    
+    distroBar12V -- relayAutonomousStrobe [color=red];
+    relayAutonomousStrobe -- autonomousStrobe [color=red];
+    rfRemote -- rfSafe [label="RF"; style=dashed];
+    MCUSafe -- relayDrive [color=orange];
+
+
+    subgraph clusterVisionSensoriumBoard {
+        label="Vision/Sensorium Board";
+        battPi4 -- visionRPi [label="USB-C", color=cyan];
+        camera -- visionRPi [label="FPC"];
+        // GPS -- visionRPi [label="UART", color=orange];
+        // lidar -- lidarController;
+        // lidarController -- visionRPi [label="USB", color=cyan];
+        visionRPi -- smallMonitor [label="Analog video"];
+    }
+    distroBar12V -- smallMonitor [color=red];
+
+    subgraph clusterBrainBoard {
+        label="Main Brain Board";
+        MCUBrain -- magAccBoard [label="I2C", color=orange];
+        MCUBrain -- ultrasonicSensor [label="GPIO x2", color=orange];
+        MCUBrain -- bumper1 [label="GPIO", color=orange];
+        MCUBrain -- bumper2 [label="GPIO", color=orange];
+    }
+    distroBar3V -- MCUBrain [color=orange];
+    MCUBrain -- motorDriver [label="GPIO x4", color=orange];
+    MCUBrain -- MCUSafe [label="UART"];
+    MCUBrain -- GPS [label="UART"];
+    MCUBrain -- visionRPi [label="UART"];
+
+
+    subgraph clusterEncoderHelper {
+        label="Encoder helper board";
+        encoderL;
+        encoderR;
+        LLC;
+        motorSupportEncoderDataConnector;
+        motorSupportEncoderPowerConnector;
+        motorSupportEncoderPowerConnector -- LLC [color=cyan];
+        motorSupportEncoderPowerConnector -- LLC [color=orange];
+        motorSupportEncoderPowerConnector -- encoderL [color=cyan];
+        motorSupportEncoderPowerConnector -- encoderR [color=cyan];
+        encoderL -- LLC [color=cyan];
+        encoderR -- LLC [color=cyan];
+        LLC -- motorSupportEncoderDataConnector [color=orange];
+    }
+    distroBar5V -- motorSupportEncoderPowerConnector [color=cyan];
+    distroBar3V -- motorSupportEncoderPowerConnector [color=orange];
+    motorSupportEncoderDataConnector -- MCUBrain [label="GPIO x4", color=orange];
+
+
+
+    // Node labels
+    batt12V [label="12V SLA battery", shape=rect, color=red];
+    fuse [label="Fuse"];
+    masterSwitch [label="Master on/off switch"];
+    distroBar12V [label="12V power distribution bar"];
+    distroBar5V [label="5V power distribution bar"];
+    distroBar3V [label="3.3V power distribution bar"];
+    buck3V [label="Buck converter\nMPM3610 12V to 3.3V" color=orange];
+    buck5V [label="Buck converter\nMPM3610 12V to 5V" color=cyan];
+
+    relayDrive [label="Relay\nTeyleten 3V relay breakout board"];
+    stepUpTo18V [label="Step-Up Voltage Regulator\nPololu 4.5-20V U3V70A"];
+    motorDriver [label="Motor driver\nCytron 10A 5-30V Dual Channel DC Motor Driver"];
+    motorR, motorL [label="18V DC motor"];
+
+    eStopSwitch [label="E-Stop switch"];
+    eStopNO [label="normally open"];
+    eStopNC [label="normally closed"];
+
+    autonomousStrobe [label="Yellow autonomous-mode strobe"];
+    emergencyStrobe [label="Red emergency strobe"];
+
+    battRemote [label="Battery pack", color=blue, shape=rect];        
+    MCURemote [label="Remote MCU\nQTPY RP2040"];
+    nunchuckAdapter [label="Nunchuck adapter"];
+
+    rfRemote, rfSafe [label="RFM69"];
+
+    remoteBtnEnable [label="Enabling switch (pushbutton)"];
+    remoteSwitchMode [label="Mode switch"];
+    remoteSwitcPower [label="Power switch"];
+
+    MCUSafe [label="Safety MCU\nRPi Pico"];
+    relayAutonomousStrobe [label="Relay\nTeyleten 3V relay breakout board"];
+
+    battPi4 [label="USB battery pack", shape=rect, color=cyan];
+    visionRPi [label="Vision CPU\nRPi 4"];
+    camera [label="Camera\nRPi Camera v3"];
+
+    MCUBrain [label="Brain MCU\nRPi Pico W"];
+    magAccBoard [label="Mag/acc board\nLSM303AGR magnetometer and accelerometer"];
+    ultrasonicSensor [label="Ultrasonic rangefinder\nRCWL-1601"];
+    GPS [label="GPS\nNEO-6M"];
+    bumper1 [label="Bump microswitch 1"];
+    bumper2 [label="Bump microswitch 2"];
+
+    encoderR, encoderL [label="Encoder"];
+    LLC [label="Logic Level Converter\n5V to 3.3V"];
+    motorSupportEncoderDataConnector [label="Encoder data connector"];
+    motorSupportEncoderPowerConnector [label="3.3V and 5V power connectors"];
+
+    smallMonitor [label="4 in monitor"];
+}
