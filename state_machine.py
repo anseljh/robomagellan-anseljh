@@ -5,11 +5,14 @@ class State:
     def __init__(self, name: str):
         self.name = name
         self.transitions = {}
+    
+    def run(self, machine):
+        pass
 
 
 class StateMachine:
 
-    def __init__(self, initial_state: State = None):
+    def __init__(self, initial_state: State | None = None):
         self.state = initial_state
         self.states = {}
         self.transition_table = {}
@@ -35,46 +38,16 @@ class StateMachine:
         print(f"Exiting state '{state.name}'")
 
 
-class InitializingState(State):
-    def run(self, machine: StateMachine):
-        print(f"Initializing...")
-        print("beep")
-        print("boop")
-
-        if monotonic() - machine.start_time > 5:
-            machine.init_done = True
-            print("Done initializing")
-        
-
-class AwaitingMapState(State):
-    def run(self, machine: StateMachine):
-        print(f"Awaiting map...")
-        print("beep")
-        print("boop")
-        if monotonic() - machine.last_transition_time > 5:
-            machine.map_data = (
-                (1,2),
-                (3,4),
-                (5,6),
-            )
-            print(f"Got a map! {machine.map_data}")
-
-
-class MissionAccomplishedState(State):
-    def run(self, machine: StateMachine):
-        machine.stop_condition = True
-        print(f"Mission accomplished!!!")
-
-
 class RobotStateMachine(StateMachine):
 
     def __init__(self):
         super().__init__()
+        self.robot_name = "Clanker"
         self.start_time = monotonic()
         self.last_transition_time = None
         
         self.init_done = False
-        self.map_data = None
+        self.map_data = []
         self.stop_condition = False
 
         initializing_state = InitializingState("initializing")
@@ -129,3 +102,38 @@ class RobotStateMachine(StateMachine):
         else:
             print("no")
             return False
+    
+    def hello(self):
+        print(f"Hello! I am {self.robot_name}.")
+
+
+class InitializingState(State):
+    def run(self, machine: RobotStateMachine):
+        print(f"Initializing...")
+        print("beep")
+        print("boop")
+
+        if monotonic() - machine.start_time > 5:
+            machine.init_done = True
+            print("Done initializing")
+            machine.hello()
+        
+
+class AwaitingMapState(State):
+    def run(self, machine: RobotStateMachine):
+        print(f"Awaiting map...")
+        print("beep")
+        print("boop")
+        if machine.last_transition_time and monotonic() - machine.last_transition_time > 5:
+            machine.map_data = [
+                (1, 2, "start"),
+                (3, 4, "cone"),
+                (5, 6, "end"),
+            ]
+            print(f"Got a map! {machine.map_data}")
+
+
+class MissionAccomplishedState(State):
+    def run(self, machine: RobotStateMachine):
+        machine.stop_condition = True
+        print(f"Mission accomplished!!!")
