@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "anseljh-getsurreal"
+version = "0.1.0"
+description = ""
+authors = ["Ansel Halliburton <github@anseljh.com>"]
+readme = "README.md"
+packages = [{include = "anseljh_getsurreal"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyserial = "^3.5"
+vpython = "^7.6.4"
+construct = "^2.10.68"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
